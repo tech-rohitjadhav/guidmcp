@@ -1,0 +1,56 @@
+{
+  "name": "sequential-guid-generator-mcp",
+  "version": "1.0.0",
+  "description": "SQL Server optimized sequential GUID generator MCP server",
+  "main": "dist/server.js",
+  "bin": {
+    "sequential-guid-mcp": "dist/server.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/server.ts",
+    "start": "node scripts/start-server.js",
+    "start:direct": "node dist/server.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "echo \"ESLint not configured yet\"",
+    "clean": "rimraf dist",
+    "prebuild": "npm run clean",
+    "example": "npm run build && node examples/basic-usage.js"
+  },
+  "keywords": [
+    "mcp",
+    "guid",
+    "sequential-guid",
+    "sql-server",
+    "database",
+    "performance",
+    "optimization"
+  ],
+  "author": "GUIDMCP",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.10.1",
+    "jest": "^30.2.0",
+    "rimraf": "^6.1.0",
+    "ts-jest": "^29.4.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.22.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-repo/GUIDMCP.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-repo/GUIDMCP/issues"
+  },
+  "homepage": "https://github.com/your-repo/GUIDMCP#readme"
+}
