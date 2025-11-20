@@ -6,7 +6,8 @@
       "Bash(npm test)",
       "Bash(npm pack:*)",
       "Bash(git add:*)",
-      "mcp__serena__list_dir"
+      "mcp__serena__list_dir",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []

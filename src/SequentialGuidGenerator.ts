@@ -49,9 +49,12 @@ export class SequentialGuidGenerator {
         const timestamp = this.getTimestamp(now);
         const guid = Buffer.alloc(16);
 
-        // First 6 bytes: Timestamp (big-endian)
-        guid.writeUInt32BE(timestamp >>> 16, 0);
-        guid.writeUInt16BE(timestamp & 0xFFFF, 4);
+        // First 6 bytes: Timestamp (big-endian) - store milliseconds in 48 bits
+        const milliseconds = Math.max(0, timestamp); // Ensure non-negative
+        const timestampHigh = Math.floor(milliseconds / 0x10000);
+        const timestampLow = milliseconds & 0xFFFF;
+        guid.writeUInt32BE(timestampHigh, 0);
+        guid.writeUInt16BE(timestampLow, 4);
 
         // Next 2 bytes: Machine ID + Sequence
         guid.writeUInt16BE((this.machineId.readUInt16BE(0) & 0xFFF0) | (this.sequence & 0x000F), 6);
@@ -114,22 +117,21 @@ export class SequentialGuidGenerator {
      */
     public extractTimestamp(guid: string): Date {
         const buffer = this.guidToBuffer(guid);
-        
-        // Read timestamp (first 6 bytes)
+
+        // Read timestamp (first 6 bytes) - extract the 48-bit millisecond timestamp
         const timestampHigh = buffer.readUInt32BE(0);
         const timestampLow = buffer.readUInt16BE(4);
-        const timestamp = (timestampHigh << 16) | timestampLow;
-        
-        const millisecondsSinceEpoch = timestamp / SequentialGuidGenerator.TICKS_PER_MILLISECOND;
-        return new Date(this.epoch.getTime() + millisecondsSinceEpoch);
+        const milliseconds = (timestampHigh * 0x10000) + timestampLow;
+
+        return new Date(this.epoch.getTime() + milliseconds);
     }
 
     private getTimestamp(now: number): number {
-        const milliseconds = now - this.epoch.getTime();
-        const ticks = Math.floor(milliseconds * SequentialGuidGenerator.TICKS_PER_MILLISECOND);
-        
+        // Use milliseconds directly instead of ticks to avoid overflow
+        const milliseconds = Math.max(0, now - this.epoch.getTime());
+
         // Handle sequence overflow within the same millisecond
-        if (ticks === this.lastTimestamp) {
+        if (milliseconds === this.lastTimestamp) {
             this.sequence = (this.sequence + 1) & 0x000F;
             if (this.sequence === 0) {
                 // Sequence overflow, wait for next millisecond
@@ -141,9 +143,9 @@ export class SequentialGuidGenerator {
         } else {
             this.sequence = 0;
         }
-        
-        this.lastTimestamp = ticks;
-        return ticks;
+
+        this.lastTimestamp = milliseconds;
+        return milliseconds;
     }
 
     private generateMachineId(): Buffer {

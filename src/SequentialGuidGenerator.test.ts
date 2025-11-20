@@ -69,8 +69,8 @@ describe('SequentialGuidGenerator', () => {
       const timestamp = generator.extractTimestamp(guid);
 
       expect(timestamp).toBeInstanceOf(Date);
-      // Should be a reasonable date (after 1900 but before far future)
-      expect(timestamp.getTime()).toBeGreaterThan(new Date('1900-01-01T00:00:00Z').getTime());
+      // Should be a reasonable date (within 1 minute of current time)
+      expect(timestamp.getTime()).toBeGreaterThan(Date.now() - 60000); // Within 1 minute ago
       expect(timestamp.getTime()).toBeLessThan(Date.now() + 60000); // Within 1 minute from now
     });
 
