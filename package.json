@@ -52,7 +52,7 @@
     "index-fragmentation",
     "model-context-protocol"
   ],
-  "author": "GUIDMCP",
+  "author": "Rohit Jadhav",
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^30.0.0",
