@@ -14,6 +14,8 @@ export { SqlServerOptimizations, type SqlServerGuidAnalysis } from './SqlServerO
 export {
   generateSequentialGuid,
   generateSequentialGuidBatch,
+  generateRandomGuid,
+  generateRandomGuidBatch,
   isValidGuid,
   defaultGuidGenerator,
 } from './SequentialGuidGenerator.js';

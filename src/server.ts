@@ -12,6 +12,8 @@ import {
   SequentialGuidGenerator,
   generateSequentialGuid,
   generateSequentialGuidBatch,
+  generateRandomGuid,
+  generateRandomGuidBatch,
   isValidGuid,
   defaultGuidGenerator,
 } from './SequentialGuidGenerator.js';
@@ -50,8 +52,32 @@ class GuidMcpServer {
       return {
         tools: [
           {
+            name: 'generate_random_guid',
+            description: 'Generate a single random GUID (UUID v4)',
+            inputSchema: {
+              type: 'object',
+              properties: {},
+            },
+          },
+          {
+            name: 'generate_random_guid_batch',
+            description: 'Generate multiple random GUIDs (UUID v4)',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                count: {
+                  type: 'number',
+                  description: 'Number of GUIDs to generate (1-1000)',
+                  minimum: 1,
+                  maximum: 1000,
+                },
+              },
+              required: ['count'],
+            },
+          },
+          {
             name: 'generate_sequential_guid',
-            description: 'Generate a single SQL Server optimized sequential GUID',
+            description: 'Generate a single SQL Server optimized sequential GUID (NEWSEQUENTIALID compatible)',
             inputSchema: {
               type: 'object',
               properties: {
@@ -65,7 +91,7 @@ class GuidMcpServer {
           },
           {
             name: 'generate_sequential_guid_batch',
-            description: 'Generate multiple SQL Server optimized sequential GUIDs',
+            description: 'Generate multiple SQL Server optimized sequential GUIDs (NEWSEQUENTIALID compatible)',
             inputSchema: {
               type: 'object',
               properties: {
@@ -209,9 +235,74 @@ class GuidMcpServer {
 
       try {
         switch (name) {
+          case 'generate_random_guid': {
+            const guid = generateRandomGuid();
+
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify({
+                    guid,
+                    type: 'standard_random',
+                    version: 'UUID v4',
+                    sqlOptimized: false,
+                    useCase: 'General purpose, non-database applications, security contexts where unpredictability is required',
+                    drawbacks: [
+                      'Causes index fragmentation in SQL Server',
+                      'Poor insert performance in clustered indexes',
+                      'Random page splits in SQL Server'
+                    ],
+                    note: 'This is a standard random GUID (UUID v4) - NOT optimized for SQL Server performance',
+                    recommendation: 'Use generate_sequential_guid for SQL Server databases instead'
+                  }, null, 2),
+                },
+              ],
+            };
+          }
+
+          case 'generate_random_guid_batch': {
+            const argsObj = args as any;
+            const argsCount = argsObj?.count;
+
+            if (!argsCount || typeof argsCount !== 'number' || argsCount < 1 || argsCount > 1000) {
+              throw new McpError(
+                ErrorCode.InvalidParams,
+                'Count must be a number between 1 and 1000'
+              );
+            }
+
+            const guids = generateRandomGuidBatch(argsCount);
+
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify({
+                    guids,
+                    count: guids.length,
+                    type: 'standard_random',
+                    version: 'UUID v4',
+                    sqlOptimized: false,
+                    useCase: 'General purpose, non-database applications, security contexts where unpredictability is required',
+                    drawbacks: [
+                      'Causes index fragmentation in SQL Server',
+                      'Poor insert performance in clustered indexes',
+                      'Random page splits in SQL Server',
+                      'Reduced cache locality'
+                    ],
+                    note: 'These are standard random GUIDs (UUID v4) - NOT optimized for SQL Server performance',
+                    recommendation: 'Use generate_sequential_guid_batch for SQL Server databases instead',
+                    performanceImpact: 'Up to 10x slower INSERT operations compared to sequential GUIDs in SQL Server'
+                  }, null, 2),
+                },
+              ],
+            };
+          }
+
           case 'generate_sequential_guid': {
             let generator = this.guidGenerator;
-            
+
             if (args && typeof args === 'object' && args.machineId && typeof args.machineId === 'string') {
               const machineIdBuffer = Buffer.from(args.machineId, 'hex');
               generator = new SequentialGuidGenerator({ machineId: machineIdBuffer });
@@ -224,9 +315,18 @@ class GuidMcpServer {
                   type: 'text',
                   text: JSON.stringify({
                     guid,
+                    type: 'sql_server_optimized_sequential',
+                    compatibleWith: 'SQL Server NEWSEQUENTIALID()',
                     machineId: generator.getMachineId(),
                     timestamp: generator.extractTimestamp(guid).toISOString(),
                     sqlOptimized: true,
+                    benefits: [
+                      'Reduces index fragmentation',
+                      'Improves insert performance',
+                      'Better cache locality',
+                      'Optimized for clustered indexes'
+                    ],
+                    note: 'This GUID is SQL Server optimized and follows NEWSEQUENTIALID() pattern for maximum database performance'
                   }, null, 2),
                 },
               ],
@@ -237,7 +337,7 @@ class GuidMcpServer {
             const argsObj = args as any;
             const argsCount = argsObj?.count;
             const machineId = argsObj?.machineId;
-            
+
             if (!argsCount || typeof argsCount !== 'number' || argsCount < 1 || argsCount > 1000) {
               throw new McpError(
                 ErrorCode.InvalidParams,
@@ -246,7 +346,7 @@ class GuidMcpServer {
             }
 
             let generator = this.guidGenerator;
-            
+
             if (machineId) {
               const machineIdBuffer = Buffer.from(machineId, 'hex');
               generator = new SequentialGuidGenerator({ machineId: machineIdBuffer });
@@ -263,11 +363,21 @@ class GuidMcpServer {
                   text: JSON.stringify({
                     guids,
                     count: guids.length,
+                    type: 'sql_server_optimized_sequential',
+                    compatibleWith: 'SQL Server NEWSEQUENTIALID()',
                     machineId: generator.getMachineId(),
                     firstTimestamp: firstTimestamp.toISOString(),
                     lastTimestamp: lastTimestamp.toISOString(),
                     sqlOptimized: true,
-                    note: 'These GUIDs are optimized for SQL Server to reduce index fragmentation',
+                    benefits: [
+                      'Reduces index fragmentation',
+                      'Improves insert performance',
+                      'Better cache locality',
+                      'Optimized for clustered indexes',
+                      'Maintains sequential order for efficient range queries'
+                    ],
+                    note: 'These GUIDs are SQL Server optimized and follow NEWSEQUENTIALID() pattern for maximum database performance',
+                    performanceGain: 'Up to 10x faster INSERT operations compared to random GUIDs in SQL Server'
                   }, null, 2),
                 },
               ],

@@ -188,3 +188,54 @@ export function generateSequentialGuidBatch(count: number): string[] {
 export function isValidGuid(guid: string): boolean {
     return SequentialGuidGenerator.isValidGuid(guid);
 }
+
+/**
+ * Random GUID Generator
+ *
+ * Generates standard random GUIDs (UUID v4) for when sequential ordering
+ * is not required. These are fully random and provide no SQL Server
+ * performance benefits.
+ */
+
+/**
+ * Generates a single random GUID (UUID v4)
+ */
+export function generateRandomGuid(): string {
+    const guid = randomBytes(16);
+
+    // Set version to 0100 (UUID v4)
+    guid[6] = (guid[6] & 0x0f) | 0x40;
+
+    // Set variant to 10xx (RFC 4122)
+    guid[8] = (guid[8] & 0x3f) | 0x80;
+
+    // Format as GUID string
+    const parts = [
+        guid.toString('hex', 0, 4),
+        guid.toString('hex', 4, 6),
+        guid.toString('hex', 6, 8),
+        guid.toString('hex', 8, 10),
+        guid.toString('hex', 10, 16)
+    ];
+
+    return parts.map(part => part.toUpperCase()).join('-');
+}
+
+/**
+ * Generates multiple random GUIDs
+ */
+export function generateRandomGuidBatch(count: number): string[] {
+    if (count <= 0) {
+        throw new Error('Count must be a positive number');
+    }
+
+    if (count > 1000) {
+        throw new Error('Count cannot exceed 1000 for batch generation');
+    }
+
+    const guids: string[] = [];
+    for (let i = 0; i < count; i++) {
+        guids.push(generateRandomGuid());
+    }
+    return guids;
+}
