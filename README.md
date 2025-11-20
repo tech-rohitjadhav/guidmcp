@@ -346,8 +346,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🆘 Support
 
 - 📖 [Documentation](docs/)
-- 🐛 [Issue Tracker](https://github.com/your-repo/GUIDMCP/issues)
-- 💬 [Discussions](https://github.com/your-repo/GUIDMCP/discussions)
+- 🐛 [Issue Tracker](https://github.com/tech-rohitjadhav/guidmcp/issues)
+- 💬 [Discussions](https://github.com/tech-rohitjadhav/guidmcp/discussions)
 
 ## 🙏 Acknowledgments
 

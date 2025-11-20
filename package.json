@@ -71,10 +71,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-repo/GUIDMCP.git"
+    "url": "https://github.com/tech-rohitjadhav/guidmcp.git"
   },
   "bugs": {
-    "url": "https://github.com/your-repo/GUIDMCP/issues"
+    "url": "https://github.com/tech-rohitjadhav/guidmcp/issues"
   },
-  "homepage": "https://github.com/your-repo/GUIDMCP#readme"
+  "homepage": "https://github.com/tech-rohitjadhav/guidmcp#readme"
 }
