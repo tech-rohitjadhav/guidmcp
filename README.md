@@ -24,26 +24,125 @@ A Model Context Protocol (MCP) server that generates SQL Server optimized sequen
 ## 🛠️ Installation
 
 ### Prerequisites
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn
 
-### Install Dependencies
+### Install from npm
 ```bash
-npm install
+# Install the package
+npm install sequential-guid-generator-mcp
+
+# For global MCP server usage
+npm install -g sequential-guid-generator-mcp
 ```
 
-### Build the Project
+### Local Development
 ```bash
+# Clone the repository
+git clone <repository-url>
+cd GUIDMCP
+
+# Install dependencies
+npm install
+
+# Build the project
 npm run build
 ```
 
 ## 🚦 Usage
 
+### As an npm package
+
+```javascript
+import { SequentialGuidGenerator, generateSequentialGuid, generateSequentialGuidBatch } from 'sequential-guid-generator-mcp';
+
+// Generate a single sequential GUID
+const guid = generateSequentialGuid();
+console.log('Generated GUID:', guid);
+
+// Generate multiple GUIDs
+const guids = generateSequentialGuidBatch(10);
+console.log('Generated batch:', guids);
+
+// Use the generator class
+const generator = new SequentialGuidGenerator();
+const customGuid = generator.generate();
+```
+
 ### As MCP Server
 
-1. **Configure Claude Desktop** (or other MCP-compatible client):
+#### Option 1: Using npm package globally (Recommended)
+
+1. **Install the package globally**:
+```bash
+npm install -g sequential-guid-generator-mcp
+```
+
+2. **Configure Claude Desktop** (or other MCP-compatible client):
 
 Add to your Claude Desktop configuration (`claude_desktop_config.json`):
+
+**For Windows:**
+```json
+{
+  "mcpServers": {
+    "sequential-guid-generator": {
+      "command": "sequential-guid-mcp.cmd"
+    }
+  }
+}
+```
+
+**For macOS/Linux:**
+```json
+{
+  "mcpServers": {
+    "sequential-guid-generator": {
+      "command": "sequential-guid-mcp"
+    }
+  }
+}
+```
+
+3. **Verify installation** (optional):
+```bash
+# Check if the command is available
+sequential-guid-mcp --version
+```
+
+**Note:** The global installation creates a command-line binary that you can call directly. The binary name matches the `bin` field in package.json: `"sequential-guid-mcp": "dist/server.js"`
+
+#### Option 2: Using npm package locally
+
+1. **Install as dependency in your project**:
+```bash
+npm install sequential-guid-generator-mcp
+```
+
+2. **Configure Claude Desktop**:
+
+```json
+{
+  "mcpServers": {
+    "sequential-guid-generator": {
+      "command": "node",
+      "args": ["node_modules/sequential-guid-generator-mcp/dist/server.js"]
+    }
+  }
+}
+```
+
+#### Option 3: Development from source
+
+1. **Clone and build locally**:
+```bash
+git clone <repository-url>
+cd GUIDMCP
+npm install
+npm run build
+```
+
+2. **Configure Claude Desktop**:
 
 ```json
 {
@@ -57,7 +156,7 @@ Add to your Claude Desktop configuration (`claude_desktop_config.json`):
 }
 ```
 
-2. **Restart Claude Desktop** to load the server.
+3. **Restart Claude Desktop** to load the server.
 
 ### Available Tools
 

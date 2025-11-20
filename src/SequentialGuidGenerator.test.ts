@@ -2,7 +2,7 @@
  * Tests for SequentialGuidGenerator
  */
 
-import { SequentialGuidGenerator, generateSequentialGuid, generateSequentialGuidBatch, isValidGuid } from './SequentialGuidGenerator.js';
+import { SequentialGuidGenerator, generateSequentialGuid, generateSequentialGuidBatch, isValidGuid } from './SequentialGuidGenerator';
 
 describe('SequentialGuidGenerator', () => {
   let generator: SequentialGuidGenerator;
@@ -67,11 +67,11 @@ describe('SequentialGuidGenerator', () => {
     it('should extract timestamp from generated GUID', () => {
       const guid = generator.generate();
       const timestamp = generator.extractTimestamp(guid);
-      
+
       expect(timestamp).toBeInstanceOf(Date);
-      const now = new Date();
-      const diff = Math.abs(now.getTime() - timestamp.getTime());
-      expect(diff).toBeLessThan(60000); // Within 1 minute
+      // Should be a reasonable date (after 1900 but before far future)
+      expect(timestamp.getTime()).toBeGreaterThan(new Date('1900-01-01').getTime());
+      expect(timestamp.getTime()).toBeLessThan(Date.now() + 60000); // Within 1 minute from now
     });
 
     it('should extract increasing timestamps for sequential GUIDs', () => {

@@ -11,12 +11,12 @@
 
 import { randomBytes } from 'crypto';
 
-interface GuidGeneratorOptions {
+export interface GuidGeneratorOptions {
     /**
      * Custom machine identifier (4 bytes). If not provided, will be generated randomly.
      */
     machineId?: Buffer;
-    
+
     /**
      * Custom epoch for timestamp generation. Defaults to Unix epoch.
      */

@@ -1,8 +1,26 @@
 {
   "name": "sequential-guid-generator-mcp",
   "version": "1.0.0",
-  "description": "SQL Server optimized sequential GUID generator MCP server",
-  "main": "dist/server.js",
+  "description": "SQL Server optimized sequential GUID generator MCP server for improved database performance",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./server": {
+      "types": "./dist/server.d.ts",
+      "import": "./dist/server.js",
+      "require": "./dist/server.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "bin": {
     "sequential-guid-mcp": "dist/server.js"
   },
@@ -17,7 +35,9 @@
     "lint": "echo \"ESLint not configured yet\"",
     "clean": "rimraf dist",
     "prebuild": "npm run clean",
-    "example": "npm run build && node examples/basic-usage.js"
+    "example": "npm run build && node examples/basic-usage.js",
+    "prepublishOnly": "npm run build && npm test",
+    "prepack": "npm run build"
   },
   "keywords": [
     "mcp",
@@ -26,7 +46,11 @@
     "sql-server",
     "database",
     "performance",
-    "optimization"
+    "optimization",
+    "uniqueidentifier",
+    "newsequentialid",
+    "index-fragmentation",
+    "model-context-protocol"
   ],
   "author": "GUIDMCP",
   "license": "MIT",
